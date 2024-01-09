@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet"  type="text/css" href="/main.css" />
+    <title>Author edit</title>
+</head>
+<body>
+    <h1>Author edit page</h1>
+    <a href="/author"><button>Home</button></a>
+    <form action="submitArticle" method="post">
+        <h3 id="articleCreated">Created: </h3>
+        <h3 id="articleLastModified">Last modified:</h3>
+        <input id="article_title" type="text" name="article_title" placeholder="Article title"></input>
+        <br>
+        <textarea id="article_body" rows="15" cols="50" name="article_body" placeholder="Article body..."></textarea>
+        <button type="submit">Submit</button>
+    </form>
+</body>
+</html>
