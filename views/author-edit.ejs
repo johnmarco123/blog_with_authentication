@@ -9,13 +9,13 @@
 <body>
     <h1>Author edit page</h1>
     <a href="/author"><button>Home</button></a>
-    <form action="submitArticle" method="post">
-        <h3 id="articleCreated">Created: </h3>
-        <h3 id="articleLastModified">Last modified:</h3>
-        <input id="article_title" type="text" name="article_title" placeholder="Article title"></input>
+    <form action="/author/edit/<%=article.article_id%>" method="post">
+        <h3 id="articleCreated">Created: <%=article.created%></h3>
+        <h3 id="articleLastModified">Last modified:<%=article.last_modified%></h3>
+        <input id="article_title" type="text" name="article_title" placeholder="Article title" value="<%=article.title%>"></input>
         <br>
-        <textarea id="article_body" rows="15" cols="50" name="article_body" placeholder="Article body..."></textarea>
-        <button type="submit">Submit</button>
+        <textarea id="article_body" rows="15" cols="50" name="article_body" placeholder="Article body..."><%=article.body%></textarea>
+        <button id="<%=article.article_id%>" type="submit">Submit</button>
     </form>
 </body>
 </html>

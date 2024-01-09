@@ -16,15 +16,29 @@
     </form>
         <ul>
             <% articles.forEach(function(article){ %>
-            <li>
-                <h3><%=article.title%><h3>
-                <p><%=article.body%></p>    
-                <h4><%=article.user_name %>, <%=article.created%></h4>
+            <li id="<%=article.article_id%>">
+                <h3><%=article.title%>, <%=article.user_name %>, <%=article.created%></h3>
+                <button class="edit-article-button">Edit</button>
+                <button class="delete-article-button">Delete</button>
             </li>
             <% }) %>
         </ul>
+        <script>
+            document.querySelectorAll(".edit-article-button").forEach(button => {
+                button.addEventListener("click", function() {
+                    const id = this.parentNode.id;
+                    window.location.href = `/author/edit/${id}`;
+                });
+            });
 
-    <button>Edit</button>
-    <button>Delete</button>
+            document.querySelectorAll(".delete-article-button").forEach(button => {
+                button.addEventListener("click", function() {
+                    const id = this.parentNode.id;
+                    fetch(`/author/edit/${id}`, { method: "DELETE" })
+                        .then(() => window.location.reload(true));
+                    ;
+                });
+            });
+        </script>
 </body>
 </html>
