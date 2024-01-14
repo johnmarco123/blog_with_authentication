@@ -35,6 +35,7 @@ router.post("/logout", (req, res, next) => {
     req.session.destroy((err) => {
         if (err) {
             console.error(err);
+
         } else {
             res.redirect("/users/login");
         }
@@ -52,31 +53,28 @@ router.post("/login", (req, res, next) => {
         return res.status(401).send(genericLoginError);
     }
     const query_parameters = [username];
-    let query = "SELECT * FROM USERS WHERE username = ?;"
-    global.db.get(query, query_parameters,
-    function (err, user) {
+    let query = "SELECT * FROM users WHERE username = ?;";
+    global.db.get(query, query_parameters, function (err, user) {
         if (err) {
             next(err); //send the error on to the error handler
 
         } else {
-            if (err) {
-                next(err); //send the error on to the error handler
-            } else {
-                if (!user) {
-                    return res.status(401).send(genericLoginError)
-                }
-                const hash = user.password;
-                bcrypt.compare(password, hash, function(err, result) {
-                    if (result) {
-                        // give them a cookie to allow them to access each page
-                        req.session.user = { user_id: user.user_id, username: user.username };
-                        res.redirect("/author");
-                        next();
-                    } else {
-                        return res.status(401).send(genericLoginError);
-                    }
-                });
+            if (!user) {
+                return res.status(401).send(genericLoginError)
             }
+            const hash = user.password;
+            bcrypt.compare(password, hash, function(err, result) {
+                if (result) {
+                    // give them a cookie to allow them to access each page
+                    req.session.user = {
+                        user_id: user.user_id,
+                        username: user.username 
+                    };
+                    res.redirect("/author");
+                } else {
+                    return res.status(401).send(genericLoginError);
+                }
+            });
         }
     });
 });
@@ -90,10 +88,9 @@ router.post("/add-user", (req, res, next) => {
     const username = req.body?.username;
     const password = req.body?.password;
     const confirmPassword = req.body?.confirm_password;
-    const email = req.body?.email;
 
     // ensure all fields are filled in 
-    if (!username || !password || !authorName || !blogTitle || !email || !confirmPassword) {
+    if (!username || !password || !authorName || !blogTitle || !confirmPassword) {
         return res.status(401).send("Please fill out all fields");
     };
 
@@ -115,18 +112,21 @@ router.post("/add-user", (req, res, next) => {
         query = "INSERT INTO users (username, password, author_name) VALUES (?, ?, ?);";
         query_parameters = [username, hash, authorName];
 
+        console.log(hash);
         // Execute the query and send a confirmation message
         global.db.run(query, query_parameters, function (err) {
             if (err) next(err); //send the error on to the error handler
             else {
                 // add the users blog settings
-                query = "INSERT INTO blog_settings (user_id, blog_title, author_name) VALUES (?, ?, ?);";
+                query = "INSERT INTO blogs (user_id, blog_title, author_name) VALUES (?, ?, ?);";
                 query_parameters = [this.lastID, blogTitle, authorName];
                 // Execute the query and send a confirmation message
                 global.db.run(query, query_parameters,
-                function (err) { if (err) next(err); });
-                res.redirect("/users/login");
+                function (err) {
+                    if (err) next(err); 
+                });
                 next();
+                res.redirect("/users/login");
             }
         });
     })

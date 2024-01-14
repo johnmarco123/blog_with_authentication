@@ -9,12 +9,15 @@
 <body>
     <h1>Reader Home</h1>
     <a href="/"><button>Front page</button></a>
-        <ul>
-            <% articles.forEach(function(article){ %>
-            <h3><%=article.title%><h3>
-            <h4><%=article.author_name %>, <%=article.created%></h4>
-            <a href="/reader/<%=article.article_id%>"><button>Visit article</button></a>
-            <% }) %>
-        </ul>
+
+    <ul>
+        <% blogs.forEach(function(blog){ %>
+        <li>
+            <h4>Blog title: <%=blog.blog_title %></h4>
+            <h4>Author name: <%=blog.author_name %></h4>
+            <a href="/reader/blog/<%=blog.user_id%>"><button>Visit blog</button></a>
+        </li>
+        <% }) %>
+    </ul>
 </body>
 </html>

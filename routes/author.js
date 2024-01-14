@@ -6,6 +6,7 @@
 const express = require("express");
 const router = express.Router();
 
+// redirect the user to the login page if they aren't authorized
 function unauthorized(req, res) {
     if (!req.session?.user) {
         // redirect them to the login page if they aren't authenticated
@@ -25,19 +26,18 @@ router.get("/", (req, res, next) => {
     const userId = req.session.user.user_id;
     // ensure this user is authorized to come here
     // execute sql query
-    global.db.all(query, [userId], function(error, articles) {
-        if (error) {
-            next(error);
+    global.db.all(query, [userId], function(err, articles) {
+        if (err) {
+            next(err);
         } else {
-
-            query = "SELECT * FROM blog_settings WHERE user_id = ?;";
-            global.db.get(query, [userId], function(error, blog_settings) {
-                if (error) {
-                    next(error);
+            query = "SELECT * FROM blogs WHERE user_id = ?;";
+            global.db.get(query, [userId], function(err, blog) {
+                if (err) {
+                    next(err);
                 }
                 res.render("author-home", {
                     articles: articles,
-                    blog: blog_settings,
+                    blog: blog,
                     user: req.session.user,
                 });
             });
@@ -47,13 +47,21 @@ router.get("/", (req, res, next) => {
 
 
 /**
- * @The author settings page where the author can change the blog title and author
+ * @The author settings page where the author can change the blogs title and author
 * name and other settings
 * */
 router.get("/settings", (req, res, next) => {
-    if (unauthorized(req, res)) return;
     // ensure this user is authorized to come here
-    res.render("author-settings.ejs");
+    if (unauthorized(req, res)) return;
+    const userId = req.session.user.user_id;
+    const query = "SELECT * FROM blogs WHERE user_id = ?;";
+    global.db.get(query, [userId], function(err, blog) {
+        if (err) {
+            next(err);
+        } else {
+            res.render("author-settings.ejs", { blog: blog });
+        }
+    })
 });
 
 /**
@@ -61,9 +69,14 @@ router.get("/settings", (req, res, next) => {
 * name and other settings. Posting to this actually changes the settings
 * */
 router.post("/settings", (req, res, next) => {
-    if (unauthorized(req, res)) return;
     // ensure this user is authorized to come here
-    const queryParams = [req.body.blog_title, req.body.author_name, req.session.user.user_id];
+    if (unauthorized(req, res)) return;
+
+    const query = "UPDATE blogs SET blog_title = ?, author_name = ? WHERE user_id = ?"
+    const blogTitle = req.body.blog_title;
+    const authorName = req.body.author_name;
+    const queryParams = [blogTitle, authorName, req.session.user.user_id];
+
     global.db.run(query, queryParams, function(err) {
         if (err) {
             next(err); 
@@ -164,14 +177,12 @@ router.post("/delete/:articleId", (req, res, next) => {
     if (isNaN(parseInt(articleId))) {
         res.redirect("/author");
     }
-        global.db.get(`DELETE FROM articles WHERE article_id = ?`,
-            [articleId],
-            function(err) {
-            if (err) {
-                next(err);
-            } else {
-                    res.redirect("/author");
-            }
+    global.db.run("DELETE FROM articles WHERE article_id = ?", [articleId], function(err) {
+        if (err) {
+            next(err);
+        } else {
+            res.redirect("/author");
+        }
     });
 });
 
@@ -194,11 +205,6 @@ router.post("/edit/:articleId", (req, res, next) => {
             if (err) {
                 next(err);
             } else if (row == undefined) {
-                // REDIRECT TO SOME SORT OF ERROR PAGE HERE
-                // REDIRECT TO SOME SORT OF ERROR PAGE HERE
-                // REDIRECT TO SOME SORT OF ERROR PAGE HERE
-                // REDIRECT TO SOME SORT OF ERROR PAGE HERE
-                // REDIRECT TO SOME SORT OF ERROR PAGE HERE
                 res.redirect("/author");
                 next();
 
@@ -223,17 +229,23 @@ router.post("/edit/:articleId", (req, res, next) => {
                     articleId];
 
                 global.db.run(query, query_parameters, function (err) {
-                        if (err) {
-                            next(err); //send the error on to the error handler
-                        } else {
-                            res.redirect("/author"); next();
-                        }
+                    if (err) {
+                        next(err); //send the error on to the error handler
+                    } else {
+                        res.redirect("/author"); next();
+                    }
                 });
             }
         });
     });
 });
 
+/**
+ * @desc when the user publishes an article we call this function. It changes
+    * the article from draft to published, giving it a publish date. Once
+    * it is published it cannot be unpublished, or edited only deleted
+    * 
+ */
 router.post("/publish/:articleId", (req, res, next) => {
     // ensure the user is authorized to come here
     if (unauthorized(req, res)) return;
@@ -249,11 +261,6 @@ router.post("/publish/:articleId", (req, res, next) => {
             if (err) {
                 next(err);
             } else if (row == undefined) {
-                // REDIRECT TO SOME SORT OF ERROR PAGE HERE
-                // REDIRECT TO SOME SORT OF ERROR PAGE HERE
-                // REDIRECT TO SOME SORT OF ERROR PAGE HERE
-                // REDIRECT TO SOME SORT OF ERROR PAGE HERE
-                // REDIRECT TO SOME SORT OF ERROR PAGE HERE
                 res.redirect("/author");
                 next();
 

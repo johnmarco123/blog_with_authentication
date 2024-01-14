@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet"  type="text/css" href="/main.css" />
+    <title>Reader Visit Blog</title>
+</head>
+<body>
+    <h1>Reader Blog</h1>
+    <h2>This is the <u><%=blog.blog_title%></u> blog</h2>
+    <a href="/reader"><button>Reader Home</button></a>
+
+    <ul>
+    <% articles.forEach(function(article){ %>
+        <li class="reader-article">
+            <h3><%=article.title%><h3>
+            <h4><%=article.author_name %>, <%=article.published%></h4>
+            <a href="/reader/article/<%=article.article_id%>"><button>Visit article</button></a>
+        </li>
+    <% }) %>
+    </ul>
+</body>
+</html>

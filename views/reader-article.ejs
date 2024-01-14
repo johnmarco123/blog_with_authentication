@@ -8,39 +8,35 @@
 </head>
 <body>
     <h1>Reader article header</h1>
-    <a href="/reader"><button>Home</button></a>
+    <a href="/reader/blog/<%=article.user_id%>"><button>Go back</button></a>
     <h2 id="article_title" type="text" name="article_title" placeholder="Article title">Title: <%=article.title%></h2>
     <h3 id="author_name">Author name: <%=article.author_name%></h3>
-    <h3 id="articleCreated">Created: <%=article.created%></h3>
-    <h3 id="articleLastModified">Last modified:<%=article.last_modified%></h3>
+    <h3 id="articlePublished">Published: <%=article.published%></h3>
     <br>
     <p id="reader-article-body"><%=article.body%></p>
     <br>
     <h3 id="number_of_views">number of views: <%=article.number_of_views%></h3>
-
-    <br>
     <h3 id="number_of_likes">number of likes: <%=article.number_of_likes%></h3>
     <%if (userLikedPost) {%>
-    <form action="/reader/unlike-article/<%=article.article_id%>" method="post">
+    <form action="/reader/article/unlike-article/<%=article.article_id%>" method="post">
         <button>Unlike the article</button>
     </form>
     <%} else {%>
-    <form action="/reader/like-article/<%=article.article_id%>" method="post">
+    <form action="/reader/article/like-article/<%=article.article_id%>" method="post">
         <button>Like the article</button>
     </form>
+    <%}%>
 
-    <form action="/reader/submit-comment/<%=article.article_id%>" method="post">
+    <form action="/reader/article/submit-comment/<%=article.article_id%>" method="post">
         <input id="commenter_name" name="commenter_name" placeholder="Your name"></input>
         <textarea id="comment" rows="15" cols="50" name="comment" placeholder="Your comment..."></textarea>
         <button>Submit Comment</button>
     </form>
 
-    <%}%>
         <% comments.forEach(function(comment){ %>
         <h3><%=comment.commenter_name%></h3>
         <p><%=comment.comment%></p>
     <% }) %>
-
 
 </body>
 </html>

@@ -15,7 +15,7 @@ app.set('view engine', 'ejs'); // set the app to use ejs for rendering
 app.use(express.static(__dirname + '/public')); // set location of static files
 
 app.use(session({
-    secret: 'PLZ_CHANGE_ME_AND_MAKE_ME_MORE_SECURE',
+    secret: "]c7)R5%!*bzZ|#jVNEoJ~3!yB|.r~~cDjP6@<ljUZ3rjnvRlg2!5'Qas,N5!yCJ",
     resave: true,
     saveUninitialized: true,
     cookie: {

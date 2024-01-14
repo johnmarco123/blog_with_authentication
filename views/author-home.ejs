@@ -15,42 +15,52 @@
     <h2>Hello <%=blog.author_name%>!</h2>
     <h2>This is the <%=blog.blog_title%> blog</h2>
     <a href="/author/settings"><h3>Settings</h3></a>
-    <!-- SHOULD CRATE A NEW DRAFT AND GO TO ITS EDIT PAGE --->
     <br>
     <form action="/author/add-draft" method="post">
         <a href="/author/edit"><button>Create new draft</button></a>
     </form>
+
+    <h1><u>Published articles:</u></h1>
         <ul>
             <% articles.forEach(function(article){ %>
-            <li id="<%=article.article_id%>">
-                <h3><%=article.title%>, <%=article.author_name %>, <%=article.created%></h3>
                 <% if (article.published) { %>
-                <h3><%="Published: "  + article.published  %></h3>
+                    <li id="<%=article.article_id%>">
+                        <h3><%="Article title: "  + article.title  %></h3>
+                        <h3><%="Created: "  + article.created  %></h3>
+                        <h3><%="Published: "  + article.published  %></h3>
+                        <h3><%="Last modified: "  + article.last_modified  %></h3>
+                        <h3>Number of likes: <%=article.number_of_likes%></h3>
+                        <h3>Number of views: <%=article.number_of_views%></h3>
+                        <h3>Sharing link: 
+                            <a href="/reader/article/<%=article.article_id%>">
+                                <u>localhost:3000/reader/article/<%=article.article_id%></u>
+                            </a>
+                        </h3>
+                        <form action="/author/delete/<%=article.article_id%>" method="post">
+                            <button class="delete-article-button">Delete</button>
+                        </form>
+                    </li>
                 <% } %>
-                <button class="edit-article-button">Edit</button>
-
-                <form action="/author/delete/<%=article.article_id%>" method="post">
-                    <button class="delete-article-button">Delete</button>
-                </form>
-
-
-                <% if (!article.published) { %>
-                    <form action="/author/publish/<%=article.article_id%>" method="post">
-                        <button class="publish-article-button">Publish?</button>
-                    </form>
-                <% } %>
-
-
-            </li>
             <% }) %>
         </ul>
-        <script>
-            document.querySelectorAll(".edit-article-button").forEach(button => {
-                button.addEventListener("click", function() {
-                    const id = this.parentNode.id;
-                    window.location.href = `/author/edit/${id}`;
-                });
-            });
-        </script>
+        <h1><u>Drafts:</u></h1>
+        <ul>
+            <% articles.forEach(function(article){ %>
+                <%if (!article.published) { %>
+                    <li>
+                        <h3><%="Article title: "  + article.title  %></h3>
+                        <h3><%="Created: "  + article.created  %></h3>
+                        <h3>Published: never</h3>
+                        <h3><%="Last modified: "  + article.last_modified  %></h3>
+                        <form action="/author/publish/<%=article.article_id%>" method="post">
+                            <button class="publish-article-button">Publish?</button>
+                        </form>
+                        <form action="/author/edit/<%=article.article_id%>" method="get">
+                            <button class="edit-article-button">Edit</button>
+                        </form>
+                    </li>
+                <% } %>
+            <% }) %>
+        </ul>
 </body>
 </html>

@@ -8,11 +8,33 @@
 </head>
 <body>
     <h1>Account Settings</h1>
+
     <a href="/author"><button>Home</button></a>
-    <form action="/author/settings" method="post">
-        <p>Blog name: <input id="blog_title" type="text" name="blog_title" /></p>
-        <p>Author name: <input id="author_name" type="text" name="author_name" /></p>
+    <form id="settings-form" action="/author/settings" method="post">
+        <h3>Blog name: </h3>
+        <input id="blog_title" type="text" name="blog_title" value="<%=blog.blog_title%>">
+        <h3>Author name: </h3>
+        <input id="author_name" type="text" name="author_name" value="<%=blog.author_name%>">
+        <br>
         <button type="submit">Save changes</button>
     </form>
+    <p id="error-message"></p>
+
+    <script>
+        // here we ensure that every field is filled in before submitting.
+        // although client side verification could be easily bypassed by simply
+        // removing this code, it is not a security risk as it is simply the author
+        // name and blog title
+        document.getElementById("settings-form").addEventListener("submit", function(event) {
+            const fields = ["blog_title", "author_name"];
+            for (const field of fields) {
+                if (document.getElementById(field).value == "") {
+                    event.preventDefault();
+                    document.getElementById("error-message").innerText = "Please fill out all fields before submitting";
+                    break;
+                }
+            }
+        });
+    </script>
 </body>
 </html>
