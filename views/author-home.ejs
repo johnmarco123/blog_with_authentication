@@ -7,7 +7,13 @@
     <title>Author Home Page</title>
 </head>
 <body>
-    <h1>Author Home page</h1>
+    <a href="/"><button>Front page</button></a>
+    <form action="/users/logout" method="post">
+        <button>Logout</button>
+    </form>
+    <h1>Authors Home page</h1>
+    <h2>Hello <%=blog.author_name%>!</h2>
+    <h2>This is the <%=blog.blog_title%> blog</h2>
     <a href="/author/settings"><h3>Settings</h3></a>
     <!-- SHOULD CRATE A NEW DRAFT AND GO TO ITS EDIT PAGE --->
     <br>
@@ -17,9 +23,24 @@
         <ul>
             <% articles.forEach(function(article){ %>
             <li id="<%=article.article_id%>">
-                <h3><%=article.title%>, <%=article.user_name %>, <%=article.created%></h3>
+                <h3><%=article.title%>, <%=article.author_name %>, <%=article.created%></h3>
+                <% if (article.published) { %>
+                <h3><%="Published: "  + article.published  %></h3>
+                <% } %>
                 <button class="edit-article-button">Edit</button>
-                <button class="delete-article-button">Delete</button>
+
+                <form action="/author/delete/<%=article.article_id%>" method="post">
+                    <button class="delete-article-button">Delete</button>
+                </form>
+
+
+                <% if (!article.published) { %>
+                    <form action="/author/publish/<%=article.article_id%>" method="post">
+                        <button class="publish-article-button">Publish?</button>
+                    </form>
+                <% } %>
+
+
             </li>
             <% }) %>
         </ul>
@@ -28,15 +49,6 @@
                 button.addEventListener("click", function() {
                     const id = this.parentNode.id;
                     window.location.href = `/author/edit/${id}`;
-                });
-            });
-
-            document.querySelectorAll(".delete-article-button").forEach(button => {
-                button.addEventListener("click", function() {
-                    const id = this.parentNode.id;
-                    fetch(`/author/edit/${id}`, { method: "DELETE" })
-                        .then(() => window.location.reload(true));
-                    ;
                 });
             });
         </script>

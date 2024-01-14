@@ -4,18 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet"  type="text/css" href="/main.css" />
-    <title>Login page</title>
+    <title>Register</title>
 </head>
 <body>
     <h1>Login below</h1>
-    <form action="login" method="post">
-        <p>Username: <input id="user" type="text" name="user_name" /></p>
-        <p>Password: <input id="password" type="text" name="password" /></p>
-        <button type="submit">Login</button>
+    <form action="/users/login" method="post">
+        <p>Username: <input id="user" type="text" name="username" /></p>
+        <p>Password: <input id="password" type="password" name="password" /></p>
+        <button type="submit">login</button>
     </form>
-    <p>Or register below!</p>
-    <a href="/users">
-        <button>Register</button>
+    <h3>Or register!</h3>
+    <a href="/users/register">
+        <button type="submit">Register</button>
     </a>
 </body>
 </html>

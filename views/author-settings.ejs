@@ -4,9 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet"  type="text/css" href="/main.css" />
-    <title>Author Settings</title>
+    <title>Register</title>
 </head>
 <body>
-    <h1>Author settings page</h1>
+    <h1>Account Settings</h1>
+    <a href="/author"><button>Home</button></a>
+    <form action="/author/settings" method="post">
+        <p>Blog name: <input id="blog_title" type="text" name="blog_title" /></p>
+        <p>Author name: <input id="author_name" type="text" name="author_name" /></p>
+        <button type="submit">Save changes</button>
+    </form>
 </body>
 </html>

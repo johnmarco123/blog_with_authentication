@@ -1,8 +1,7 @@
 /**
  * users.js
- * These are example routes for user management
- * This shows how to correctly structure your routes for the project
- * and the suggested pattern for retrieving data by executing queries
+ * Used for managing user login, banning, deleting etc, anything to do with
+    * users
  *
  * NB. it's better NOT to use arrow functions for callbacks with the SQLite library
 * 
@@ -10,53 +9,127 @@
 
 const express = require("express");
 const router = express.Router();
+const bcrypt = require("bcrypt");
+
 
 /**
- * @desc Displays a page with login
+ * @desc Everything to do with adding, removing or editing users is here.
+    * These are all post requests as we have no user page
  */
-router.get("/", (req, res) => {
-    res.render("users.ejs");
+// 
+router.get("/login", (req, res) => {
+    res.render("login.ejs");
 });
 
-router.post("/ban-user", (req, res, next) => {
+router.get("/register", (req, res) => {
+    res.render("register.ejs");
 });
 
-router.post("/delete-user", (req, res, next) => {
-});
 
 /**
-    * @desc Add a new user to the database based on data from the submitted form
-    */
-router.post("/add-user", (req, res, next) => {
-    // first ensure that no user exists with the given username
-    const userName = req.body.user_name;
-    const password = req.body.password;
-    let query = "SELECT * FROM USERS WHERE user_name = ?;"
-    query_parameters = [userName];
-    // check to ensure that the username isn't taken;
-    global.db.all(query, query_parameters,
-        function (err, rows) {
-            if (err) {
-                next(err); //send the error on to the error handler
-            } else if(rows.length != 0){
-                next(new Error("TODO, IMPLAMENT A NICE ERROR MESSAG HERE"));
-            }        
-        });
+ * @desc clears the users session, logging them out
+    *
+ */
+//
+router.post("/logout", (req, res, next) => {
+    req.session.destroy((err) => {
+        if (err) {
+            console.error(err);
+        } else {
+            res.redirect("/users/login");
+        }
+    });
+});
+/**
+ * @desc Logs the user in if they provide the correct username and password
+    * combination
+ */
+const genericLoginError = "Invalid username or password";
+router.post("/login", (req, res, next) => {
+    const username = req.body?.username;
+    const password = req.body?.password;
+    if (!username || !password) {
+        return res.status(401).send(genericLoginError);
+    }
+    const query_parameters = [username];
+    let query = "SELECT * FROM USERS WHERE username = ?;"
+    global.db.get(query, query_parameters,
+    function (err, user) {
+        if (err) {
+            next(err); //send the error on to the error handler
 
-    query = "INSERT INTO users (user_name, password) VALUES (?, ?);";
-    query_parameters = [userName, password];
-
-    // Execute the query and send a confirmation message
-    global.db.run(query, query_parameters,
-        function (err) {
+        } else {
             if (err) {
                 next(err); //send the error on to the error handler
             } else {
-                res.send(`New data inserted @ id ${this.lastID}!`);
-                next();
+                if (!user) {
+                    return res.status(401).send(genericLoginError)
+                }
+                const hash = user.password;
+                bcrypt.compare(password, hash, function(err, result) {
+                    if (result) {
+                        // give them a cookie to allow them to access each page
+                        req.session.user = { user_id: user.user_id, username: user.username };
+                        res.redirect("/author");
+                        next();
+                    } else {
+                        return res.status(401).send(genericLoginError);
+                    }
+                });
             }
         }
-    );
+    });
+});
+
+/**
+ * @desc Add a new user to the database based on data from the submitted form
+ */
+router.post("/add-user", (req, res, next) => {
+    const blogTitle = req.body?.blog_title;
+    const authorName = req.body?.author_name;
+    const username = req.body?.username;
+    const password = req.body?.password;
+    const confirmPassword = req.body?.confirm_password;
+    const email = req.body?.email;
+
+    // ensure all fields are filled in 
+    if (!username || !password || !authorName || !blogTitle || !email || !confirmPassword) {
+        return res.status(401).send("Please fill out all fields");
+    };
+
+    if (password !== confirmPassword) {
+        return res.status(401).send("Your passwords do not match, please try again.");
+    }
+
+    const saltRounds = 10;
+    bcrypt.hash(password, saltRounds, function(err, hash) {
+        let query = "SELECT * FROM USERS WHERE username = ?;"
+        query_parameters = [username];
+        // check to ensure that the username isn't taken;
+        global.db.all(query, query_parameters,
+            function (err, rows) {
+                if (err) next(err); //send the error on to the error handler
+                else if(rows.length != 0) return res.status(401).send("Username has already been taken");
+            });
+
+        query = "INSERT INTO users (username, password, author_name) VALUES (?, ?, ?);";
+        query_parameters = [username, hash, authorName];
+
+        // Execute the query and send a confirmation message
+        global.db.run(query, query_parameters, function (err) {
+            if (err) next(err); //send the error on to the error handler
+            else {
+                // add the users blog settings
+                query = "INSERT INTO blog_settings (user_id, blog_title, author_name) VALUES (?, ?, ?);";
+                query_parameters = [this.lastID, blogTitle, authorName];
+                // Execute the query and send a confirmation message
+                global.db.run(query, query_parameters,
+                function (err) { if (err) next(err); });
+                res.redirect("/users/login");
+                next();
+            }
+        });
+    })
 });
 
 // Export the router object so index.js can access it

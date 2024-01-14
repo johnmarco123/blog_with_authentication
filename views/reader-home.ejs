@@ -8,11 +8,12 @@
 </head>
 <body>
     <h1>Reader Home</h1>
+    <a href="/"><button>Front page</button></a>
         <ul>
             <% articles.forEach(function(article){ %>
             <h3><%=article.title%><h3>
-            <p><%=article.body%></p>    
-            <h4><%=article.user_name %>, <%=article.created%></h4>
+            <h4><%=article.author_name %>, <%=article.created%></h4>
+            <a href="/reader/<%=article.article_id%>"><button>Visit article</button></a>
             <% }) %>
         </ul>
 </body>
