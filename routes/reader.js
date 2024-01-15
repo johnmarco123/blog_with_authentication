@@ -1,5 +1,6 @@
 /**
- * reader.js
+ * author.js
+ * Used for managing reader comments, likes, views, and all the reader pages
 * 
  */
 
@@ -185,7 +186,7 @@ router.post("/article/unlike-article/:articleId", (req, res, next) => {
 });
 
 /*
-    * @desc Allows the user to submit their commment for the given article
+    * @desc likes the article for the given articleId
 */
 router.post("/article/submit-comment/:articleId" , (req, res, next) => {
     const articleId = req.params.articleId

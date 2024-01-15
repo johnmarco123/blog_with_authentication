@@ -1,5 +1,6 @@
 /**
  * author.js
+ * Used for managing authors adding, removing, publishing, editing, articles *
 * 
  */
 

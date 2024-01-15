@@ -112,7 +112,6 @@ router.post("/add-user", (req, res, next) => {
         query = "INSERT INTO users (username, password, author_name) VALUES (?, ?, ?);";
         query_parameters = [username, hash, authorName];
 
-        console.log(hash);
         // Execute the query and send a confirmation message
         global.db.run(query, query_parameters, function (err) {
             if (err) next(err); //send the error on to the error handler
